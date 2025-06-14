@@ -1,0 +1,2 @@
+A:/chart_harakia/new design/chart_harakia/android/app/.cxx/Debug/20r5u6y0/arm64-v8a/CMakeFiles/edit_cache.dir
+A:/chart_harakia/new design/chart_harakia/android/app/.cxx/Debug/20r5u6y0/arm64-v8a/CMakeFiles/rebuild_cache.dir
