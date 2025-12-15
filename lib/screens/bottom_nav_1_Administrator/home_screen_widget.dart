@@ -1,9 +1,10 @@
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/castodymanagement.dart';
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/loanCreateScreen.dart';
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/permissioncreate.dart';
 import 'package:flutter/material.dart';
 import 'package:chart_harakia/screens/bottom_nav_1_Administrator/home.dart';
 import 'package:chart_harakia/screens/bottom_nav_1_Administrator/profile.dart';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/expenseClaim.dart';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/paymentRecievecreate.dart';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/paymentpaycreate.dart';
+
 import 'package:chart_harakia/widgets/colors.dart';
 
 class HomeScreenAdmin extends StatefulWidget {
@@ -18,10 +19,10 @@ class _HomeScreenAdminState extends State<HomeScreenAdmin> {
   late PageController _pageController;
 
   final List<Widget> _pages = [
-    PaymentPayScreen(),
-    PaymentRecieveScreen(),
+    LoanCreateScreen(),
+    Permissioncreate(),
     HomeScreenContentAdmin(),
-   ExpenseClaimScreen(),
+    Castodymanagement(),
     ProfileScreenAdmin(),
   ];
 
@@ -92,10 +93,10 @@ class _HomeScreenAdminState extends State<HomeScreenAdmin> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              _buildNavItem(Icons.payment_sharp, "دفع الدفعة", 0),
-              _buildNavItem(Icons.wallet_giftcard, "استلام دفعة", 1),
+              _buildNavItem(Icons.payment_sharp, "قرض", 0),
+              _buildNavItem(Icons.wallet_giftcard, "إدارة الحفظ", 1),
               const SizedBox(width: 40), // Space for FAB (home icon stays fixed in position)
-              _buildNavItem(Icons.work, "مطالبة بمصاريف", 3),
+              _buildNavItem(Icons.work, "إذن", 3),
               _buildNavItem(Icons.person, "الخروج", 4),
             ],
           ),

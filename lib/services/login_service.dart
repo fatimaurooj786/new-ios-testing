@@ -5,7 +5,7 @@ import 'package:http/io_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String loginUrl = 'https://harakia.charterp.org/api/method/login';
+  final String loginUrl = 'https://demoharakia.charterp.org/api/method/login';
   
 
   // Method to handle user login

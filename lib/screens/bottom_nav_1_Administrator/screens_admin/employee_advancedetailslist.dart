@@ -1,8 +1,7 @@
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/expense_claim_listemployee.dart';
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../../widgets/colors.dart';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/paymentrecievewithdonorsdata.dart';
 
 class EmployeeAdvancedetailslist extends StatefulWidget {
   final dynamic paymentItem;
@@ -65,7 +64,7 @@ class _EmployeeAdvancedetailslistState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("تفاصيل المصروف", textDirection: TextDirection.rtl),
+        title: const Text("تفاصيل السلفة", textDirection: TextDirection.rtl),
         backgroundColor: MyColors.color,
         automaticallyImplyLeading: false,
         actions: [
@@ -105,32 +104,7 @@ class _EmployeeAdvancedetailslistState
               ),
             ),
 
-            // Button to navigate with data
-            Center(
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text(
-                  "إنشاء إيصال مصروف",
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: MyColors.color,
-                ),
-                onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ExpenseClaimListemployee(
-        paymentItem: widget.paymentItem, // 👈 passing data
-      ),
-    ),
-  );
-},
-
-              ),
-            ),
-            const SizedBox(height: 20),
+           
 
             SlideTransition(
               position: _cardSlideAnimation,
@@ -170,7 +144,7 @@ class _EmployeeAdvancedetailslistState
                     buildDetailWithIcon("القسم", widget.paymentItem['department'], labelStyle, valueStyle, Icons.apartment, Colors.purple),
                     buildDetailWithIcon("الغرض", widget.paymentItem['purpose'], labelStyle, valueStyle, Icons.description, Colors.deepOrange),
                     buildDetailWithIcon("المبلغ المقدم", widget.paymentItem['advance_amount'], labelStyle, valueStyle, Icons.attach_money, Colors.red),
-                    buildDetailWithIcon("المبلغ المطالب", widget.paymentItem['claimed_amount'], labelStyle, valueStyle, Icons.money_off_csred, Colors.indigo),
+                    buildDetailWithIcon("المبلغ المطالب", widget.paymentItem['claimed_amount'], labelStyle, valueStyle, Icons.request_page, Colors.indigo),
                     buildDetailWithIcon("المبلغ المدفوع", widget.paymentItem['paid_amount'], labelStyle, valueStyle, Icons.money, Colors.blueGrey),
                     buildDetailWithIcon("الشركة", widget.paymentItem['company'], labelStyle, valueStyle, Icons.business, Colors.brown),
                     buildDetailWithIcon("الحالة", widget.paymentItem['status'], labelStyle, valueStyle, Icons.info, Colors.indigo),

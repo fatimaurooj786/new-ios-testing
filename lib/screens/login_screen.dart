@@ -1,7 +1,5 @@
-import 'package:chart_harakia/screens/bottom_nav_2_Donors/home_screen_widget.dart';
-import 'package:flutter/material.dart';
 import 'package:chart_harakia/screens/bottom_nav_1_Administrator/home_screen_widget.dart';
-
+import 'package:flutter/material.dart';
 import 'package:chart_harakia/widgets/colors.dart';
 import 'package:chart_harakia/services/login_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,20 +78,13 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } else {
       await saveLoginCredentials(_usernameController.text, _passwordController.text);
-
       String fullName = await _extractFullName();
 
-      if (fullName.trim() == 'اسامه') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreenAdmin()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreenDoners()),
-        );
-      }
+      // Navigate to Administrator Home Screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreenAdmin()),
+      );
     }
   }
 
@@ -150,15 +141,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 20),
                 TextField(
                   controller: _usernameController,
-                  style: TextStyle(
-    fontSize: 12, // 👈 Adjust this value as needed
-    
-  ),
+                  style: TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.grey[200],
                     hintText: 'ادخل اسم المستخدم',
-                    
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide(color: Colors.grey),
@@ -181,10 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 20),
                 TextField(
                   controller: _passwordController,
-                  style: TextStyle(
-    fontSize: 12, // 👈 Adjust this value as needed
-    
-  ),
+                  style: TextStyle(fontSize: 12),
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     filled: true,
@@ -236,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             backgroundColor: MyColors.color,
                             padding: EdgeInsets.symmetric(
                               vertical: 15,
-                              horizontal:120.0,
+                              horizontal: 120.0,
                             ),
                           ),
                           child: Text(
@@ -263,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 40),
+                SizedBox(height: 40),
               ],
             ),
           ),

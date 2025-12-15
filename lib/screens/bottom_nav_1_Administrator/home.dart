@@ -1,12 +1,17 @@
 import 'dart:async';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/Donation_list.dart';
+
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/casestodylist.dart';
 import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/employeeadvancelist.dart';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/expenseclaimlist.dart';
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/geolocationlist.dart';
+
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/loanScreenList.dart';
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/leaveapplicationlist.dart';
+
+import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/permissionlist.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chart_harakia/widgets/colors.dart';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/payment_pay_list.dart';
-import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/paymentrecievelist.dart';
+
 
 class HomeScreenContentAdmin extends StatefulWidget {
   const HomeScreenContentAdmin({super.key});
@@ -127,41 +132,41 @@ class _HomeScreenContentAdminState extends State<HomeScreenContentAdmin> with Ti
             children: [
               const SizedBox(height: 30),
               CardButton(
-                label: "قائمة دفع المدفوعات",
+                label: "قائمة القروض",
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PaymentPayListScreen()),
+                    MaterialPageRoute(builder: (context) => const LoanApplicationScreen()),
                   );
                 },
               ),
               const SizedBox(height: 20),
               CardButton(
-                label: "استلام المدفوعات",
+                label: "قائمة طلبات الإجازة",
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PaymentRecieveScreen()),
+                    MaterialPageRoute(builder: (context) => const LeaveApplicationScreen()),
                   );
                 },
               ),
               const SizedBox(height: 20),
               CardButton(
-                label: "قائمة مطالبات النفقات",
+                label: "قائمة الصلاحيات",
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Expenseclaimlist()),
+                    MaterialPageRoute(builder: (context) => const PermissionListScreen()),
                   );
                 },
               ),
               const SizedBox(height: 20),
               CardButton(
-                label: "قائمة التبرعات",
+                label: "قائمة العهدة",
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const DonationList()),
+                    MaterialPageRoute(builder: (context) => const CustodyListScreen()),
                   );
                 },
               ),
@@ -171,7 +176,17 @@ class _HomeScreenContentAdminState extends State<HomeScreenContentAdmin> with Ti
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const Employeeadvancelist()),
+                    MaterialPageRoute(builder: (context) => const EmployeeAdvanceListScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              CardButton(
+                label: "قائمة المواقع الجغرافية",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GeolocationListScreen()),
                   );
                 },
               ),

@@ -1,4 +1,4 @@
-import 'package:chart_harakia/screens/bottom_nav_2_Donors/home_screen_widget.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/', page: () => const SplashScreen()),
         GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/adminHome', page: () => HomeScreenAdmin()),
-        GetPage(name: '/donerHome', page: () => HomeScreenDoners()),
+        
       ],
     );
   }

@@ -1,49 +1,95 @@
-import 'package:chart_harakia/screens/admin_services/employee_advaceget.dart';
+
+import 'package:chart_harakia/screens/admin_services/employeeadvancegetList.dart';
 import 'package:chart_harakia/screens/bottom_nav_1_Administrator/screens_admin/employee_advancedetailslist.dart';
-import 'package:chart_harakia/widgets/colors.dart';
+
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:math';
 
-class Employeeadvancelist extends StatefulWidget {
-  const Employeeadvancelist({super.key});
+import 'package:chart_harakia/widgets/colors.dart';
+
+class EmployeeAdvanceListScreen extends StatefulWidget {
+  const EmployeeAdvanceListScreen({super.key});
 
   @override
-  State<Employeeadvancelist> createState() => _EmployeeadvancelistState();
+  State<EmployeeAdvanceListScreen> createState() => _EmployeeAdvanceListScreenState();
 }
 
-class _EmployeeadvancelistState extends State<Employeeadvancelist> {
-  Future<List<dynamic>?>? paymentDataFuture;
-  List<dynamic> allPaymentData = [];
-  List<dynamic> filteredPaymentData = [];
+class _EmployeeAdvanceListScreenState extends State<EmployeeAdvanceListScreen> {
+  String _fullName = 'Loading...';
+  Future<List<dynamic>?>? advanceFuture;
+  List<dynamic> allAdvances = [];
+  List<dynamic> filteredAdvances = [];
+
   String? selectedCardId;
   Color? selectedCardColor;
+
   TextEditingController filterController = TextEditingController();
   bool isFiltering = false;
+
+  DateTime? fromDate;
+  DateTime? toDate;
 
   @override
   void initState() {
     super.initState();
-    paymentDataFuture = EmployeeAdvaceget().employeegetservice();
-    _fetchPayments();
+    advanceFuture = _fetchAdvances();
   }
 
-  Future<void> _fetchPayments() async {
-    final data = await paymentDataFuture;
-    if (data != null && data.isNotEmpty) {
-      final filtered = data.where((item) => item['paid_amount'] != null).toList();
-      setState(() {
-        allPaymentData = filtered;
-        filteredPaymentData = filtered;
-      });
+  Future<List<dynamic>?> _fetchAdvances() async {
+    String fullName = await _extractFullName();
+    final service = Employeeadvancegetlist(); // using same service for now
+    List<dynamic>? advanceList = await service.fetchEmployeeGetservice();
+
+    if (!mounted) return [];
+
+    setState(() {
+      _fullName = fullName;
+      allAdvances = advanceList ?? [];
+      filteredAdvances = allAdvances;
+    });
+
+    return advanceList;
+  }
+
+  Future<String> _extractFullName() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? cookies = prefs.getString('erpnext_cookie');
+
+    if (cookies != null) {
+      for (var part in cookies.split(';')) {
+        part = part.trim();
+        if (part.contains('full_name=')) {
+          String encoded = part.substring(part.indexOf('full_name=') + 10);
+          try {
+            return Uri.decodeComponent(encoded);
+          } catch (_) {
+            return encoded;
+          }
+        }
+      }
     }
+    return 'No full name found';
   }
 
   void _applyFilter(String query) {
     setState(() {
-      filteredPaymentData = allPaymentData.where((payment) {
-        final nameMatch = payment['name'].toLowerCase().contains(query.toLowerCase());
-        return nameMatch;
+      filteredAdvances = allAdvances.where((advance) {
+        final typeMatch =
+            advance['name']?.toLowerCase().contains(query.toLowerCase()) ?? false;
+
+        final advanceDate = DateTime.tryParse(advance['posting_date'] ?? '');
+        final fromMatch = fromDate == null ||
+            (advanceDate != null &&
+                advanceDate.isAfter(fromDate!.subtract(const Duration(days: 1))));
+
+        final toMatch = toDate == null ||
+            (advanceDate != null &&
+                advanceDate.isBefore(toDate!.add(const Duration(days: 1))));
+
+        return typeMatch && fromMatch && toMatch;
       }).toList();
     });
   }
@@ -51,51 +97,58 @@ class _EmployeeadvancelistState extends State<Employeeadvancelist> {
   void _removeFilter() {
     setState(() {
       isFiltering = false;
-      filteredPaymentData = allPaymentData;
+      filteredAdvances = allAdvances;
       filterController.clear();
+      fromDate = null;
+      toDate = null;
     });
   }
 
   Color _getRandomColor() {
-    final List<Color> colorOptions = [
+    final colors = [
       Colors.blueAccent,
       MyColors.color,
       Colors.deepOrangeAccent,
       Colors.purpleAccent,
       Colors.redAccent,
     ];
-    Random random = Random();
-    return colorOptions[random.nextInt(colorOptions.length)];
+    return colors[Random().nextInt(colors.length)];
   }
 
-  Widget _buildPaymentCard(dynamic item) {
-    String cardId = item['id'].toString();
+  String formatDate(DateTime? date) {
+    if (date == null) return '';
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  Widget _buildAdvanceCard(dynamic advance) {
+    String cardId = advance['name'].toString();
     bool isSelected = selectedCardId == cardId;
     Color cardColor = isSelected ? selectedCardColor ?? MyColors.color : Colors.white;
     Color borderColor = selectedCardColor ?? MyColors.color;
 
     return GestureDetector(
-      onTap: () async {
-        final Color randomColor = _getRandomColor();
-
+      onTap: () {
+        final randomColor = _getRandomColor();
         setState(() {
           selectedCardId = cardId;
           selectedCardColor = randomColor;
         });
 
-        await Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EmployeeAdvancedetailslist(paymentItem: item),
-           ),
+            builder: (_) => EmployeeAdvancedetailslist(paymentItem: advance),
+          ),
         );
 
-        if (mounted) {
-          setState(() {
-            selectedCardId = null;
-            selectedCardColor = null;
-          });
-        }
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) {
+            setState(() {
+              selectedCardId = null;
+              selectedCardColor = null;
+            });
+          }
+        });
       },
       child: AnimatedScale(
         scale: isSelected ? 1.05 : 1.0,
@@ -114,89 +167,56 @@ class _EmployeeadvancelistState extends State<Employeeadvancelist> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.receipt_long, color: Colors.blue),
-                          SizedBox(width: 8),
-                        ],
-                      ),
-                      Expanded(
-                        child: Text(
-                          "${item['name']}",
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: MyColors.color,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildInfoRow(
+                      icon: Icons.receipt,
+                      color: Colors.teal,
+                      label: "رقم السلفة",
+                      value: advance['name']),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.attach_money, color: Colors.green),
-                          SizedBox(width: 8),
-                        ],
-                      ),
-                      Expanded(
-                        child: Text(
-                          "المبلغ المدفوع: ${item['paid_amount']}",
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.green,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 40.0),
-                        child: Icon(
-                          Icons.open_in_new,
-                          color: isSelected ? selectedCardColor : MyColors.color,
-                          size: 25,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildInfoRow(
+                      icon: Icons.date_range,
+                      color: Colors.purpleAccent,
+                      label: "تاريخ السلفة",
+                      value: advance['posting_date']),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.person, color: Colors.deepOrange),
-                          SizedBox(width: 8),
-                        ],
-                      ),
-                      Expanded(
-                        child: Text(
-                          "اسم الموظف: ${item['employee_name'] ?? 'غير متوفر'}",
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.deepOrange,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildInfoRow(
+                      icon: Icons.monetization_on,
+                      color: Colors.redAccent,
+                      label: "مبلغ السلفة",
+                      value: advance['advance_amount'].toString()),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required String? value,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Icon(icon, color: color),
+        Expanded(
+          child: Text(
+            "$label: ${value ?? ''}",
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -207,7 +227,7 @@ class _EmployeeadvancelistState extends State<Employeeadvancelist> {
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: Container(
-          height: 80,
+          height: 100,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
@@ -221,7 +241,7 @@ class _EmployeeadvancelistState extends State<Employeeadvancelist> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("قائمة المدفوعات", textDirection: TextDirection.rtl),
+        title: const Text("قائمة السلف", textDirection: TextDirection.rtl),
         backgroundColor: MyColors.color,
         automaticallyImplyLeading: false,
         actions: [
@@ -233,51 +253,24 @@ class _EmployeeadvancelistState extends State<Employeeadvancelist> {
       ),
       body: Column(
         children: [
-          if (isFiltering)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: filterController,
-                      decoration: InputDecoration(
-                        labelText: 'البحث بالاسم',
-                        contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.purple),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: MyColors.color),
-                        ),
-                      ),
-                      onChanged: _applyFilter,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red),
-                    onPressed: _removeFilter,
-                  ),
-                ],
-              ),
-            ),
+          if (isFiltering) _buildFilterUI(),
           Expanded(
             child: FutureBuilder<List<dynamic>?>(
-              future: paymentDataFuture,
+              future: advanceFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return ListView.builder(
                     itemCount: 6,
                     itemBuilder: (context, index) => _buildShimmerCard(),
                   );
-                } else if (snapshot.hasData && filteredPaymentData.isNotEmpty) {
+                } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                   return ListView.builder(
-                    itemCount: filteredPaymentData.length,
+                    itemCount: filteredAdvances.length,
                     itemBuilder: (context, index) =>
-                        _buildPaymentCard(filteredPaymentData[index]),
+                        _buildAdvanceCard(filteredAdvances[index]),
                   );
                 } else {
-                  return const Center(child: Text("لا توجد بيانات دفع متاحة."));
+                  return const Center(child: Text('لا توجد بيانات سلف متاحة.'));
                 }
               },
             ),
@@ -292,10 +285,109 @@ class _EmployeeadvancelistState extends State<Employeeadvancelist> {
           });
         },
         child: Icon(
-          isFiltering ? Icons.cancel : Icons.filter_alt,
-          color: Colors.white,
-        ),
+            isFiltering ? Icons.cancel : Icons.filter_alt,
+            color: Colors.white),
         backgroundColor: MyColors.color,
+      ),
+    );
+  }
+
+  Widget _buildFilterUI() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: filterController,
+                  decoration: InputDecoration(
+                    labelText: 'البحث برقم السلفة',
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: fromDate == null
+                              ? Colors.purple
+                              : MyColors.color),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: fromDate == null
+                              ? Colors.purple
+                              : MyColors.color),
+                    ),
+                  ),
+                  onChanged: _applyFilter,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.red),
+                onPressed: _removeFilter,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildDateSelector(
+                  label: fromDate == null ? 'من تاريخ' : formatDate(fromDate),
+                  isFrom: true,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildDateSelector(
+                  label: toDate == null ? 'إلى تاريخ' : formatDate(toDate),
+                  isFrom: false,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSelector({required String label, required bool isFrom}) {
+    DateTime? selectedDate = isFrom ? fromDate : toDate;
+    return GestureDetector(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: selectedDate ?? DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+          textDirection: TextDirection.rtl,
+        );
+        if (picked != null) {
+          setState(() {
+            if (isFrom) {
+              fromDate = picked;
+            } else {
+              toDate = picked;
+            }
+          });
+          _applyFilter(filterController.text);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+        decoration: BoxDecoration(
+          border: Border.all(
+              color: selectedDate == null ? Colors.purple : MyColors.color),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label),
+            Icon(Icons.date_range,
+                color: selectedDate == null ? Colors.purple : MyColors.color),
+          ],
+        ),
       ),
     );
   }

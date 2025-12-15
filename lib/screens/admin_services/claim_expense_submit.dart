@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:http/io_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ClaimExpenseSubmit {
-  final String Payment = 'https://harakia.charterp.org/api/resource/Expense Claim'; // URL encoded
+class Loansubmitform {
+  final String Payment = 'https://demoharakia.charterp.org/api/resource/Loan'; // URL encoded
 
   Future<bool> submitData(Map<String, dynamic> formData) async {
     try {
